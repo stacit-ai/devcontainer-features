@@ -1,41 +1,25 @@
 #!/bin/bash
-# Idempotency test: run after feature has already been installed.
-# Verifies that a second install does not break anything.
-set -euo pipefail
+set -e
 
-# shellcheck source=/dev/null
-. /etc/profile.d/uv.sh
+source dev-container-features-test-lib
 
-# ---------------------------------------------------------------------------
-# uv binary still accessible
-# ---------------------------------------------------------------------------
-if ! command -v uv > /dev/null 2>&1; then
-    echo "FAIL: 'uv' not found on PATH after duplicate install"
-    exit 1
-fi
-echo "PASS: uv on PATH — $(uv --version)"
+check "uv is available after duplicate install" uv --version
+check "uvx is available after duplicate install" uvx --version
 
-# ---------------------------------------------------------------------------
-# uvx binary still accessible
-# ---------------------------------------------------------------------------
-if ! command -v uvx > /dev/null 2>&1; then
-    echo "FAIL: 'uvx' not found on PATH after duplicate install"
-    exit 1
-fi
-echo "PASS: uvx on PATH — $(uvx --version)"
+check "ruff binary remains installed" test -x "${HOME}/.local/bin/ruff"
+check "pytest binary remains installed" test -x "${HOME}/.local/bin/pytest"
+check "ty binary remains installed" test -x "${HOME}/.local/bin/ty"
+check "black binary remains installed" test -x "${HOME}/.local/bin/black"
+check "pyright binary remains installed" test -x "${HOME}/.local/bin/pyright"
+check "pre-commit binary remains installed" test -x "${HOME}/.local/bin/pre-commit"
+check "just binary remains installed" test -x "${HOME}/.local/bin/just"
 
-# ---------------------------------------------------------------------------
-# Default tools still present
-# ---------------------------------------------------------------------------
-DEFAULT_TOOLS="ruff pytest ty black pyright pre-commit just"
-for tool in ${DEFAULT_TOOLS}; do
-    bin="/usr/local/share/uv/bin/${tool}"
-    if [ ! -x "${bin}" ]; then
-        echo "FAIL: ${bin} not found after duplicate install"
-        exit 1
-    fi
-    echo "PASS: ${tool} still present after duplicate install"
-done
+check "ruff remains listed by uv tool list" bash -c "uv tool list | grep -Eq '^ruff( |$)'"
+check "pytest remains listed by uv tool list" bash -c "uv tool list | grep -Eq '^pytest( |$)'"
+check "ty remains listed by uv tool list" bash -c "uv tool list | grep -Eq '^ty( |$)'"
+check "black remains listed by uv tool list" bash -c "uv tool list | grep -Eq '^black( |$)'"
+check "pyright remains listed by uv tool list" bash -c "uv tool list | grep -Eq '^pyright( |$)'"
+check "pre-commit remains listed by uv tool list" bash -c "uv tool list | grep -Eq '^pre-commit( |$)'"
+check "rust-just remains listed by uv tool list" bash -c "uv tool list | grep -Eq '^rust-just( |$)'"
 
-echo ""
-echo "All duplicate-install tests passed."
+reportResults

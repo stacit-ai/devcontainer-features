@@ -1,67 +1,27 @@
 #!/bin/bash
-set -euo pipefail
+set -e
 
-# shellcheck source=/dev/null
-. /etc/profile.d/uv.sh
+source dev-container-features-test-lib
 
-# ---------------------------------------------------------------------------
-# 1. uv binary on PATH
-# ---------------------------------------------------------------------------
-if ! command -v uv > /dev/null 2>&1; then
-    echo "FAIL: 'uv' not found on PATH"
-    exit 1
-fi
-echo "PASS: uv on PATH — $(uv --version)"
+check "uv is available" uv --version
+check "uvx is available" uvx --version
 
-# ---------------------------------------------------------------------------
-# 2. uvx binary on PATH
-# ---------------------------------------------------------------------------
-if ! command -v uvx > /dev/null 2>&1; then
-    echo "FAIL: 'uvx' not found on PATH"
-    exit 1
-fi
-echo "PASS: uvx on PATH — $(uvx --version)"
+check "ruff binary is installed" test -x "${HOME}/.local/bin/ruff"
+check "pytest binary is installed" test -x "${HOME}/.local/bin/pytest"
+check "ty binary is installed" test -x "${HOME}/.local/bin/ty"
+check "black binary is installed" test -x "${HOME}/.local/bin/black"
+check "pyright binary is installed" test -x "${HOME}/.local/bin/pyright"
+check "pre-commit binary is installed" test -x "${HOME}/.local/bin/pre-commit"
+check "just binary is installed" test -x "${HOME}/.local/bin/just"
 
-# ---------------------------------------------------------------------------
-# 3. UV_TOOL_* environment variables are set (from /etc/profile.d/uv.sh)
-#    Note: UV_PYTHON_INSTALL_DIR, UV_CACHE_DIR, UV_PROJECT_ENVIRONMENT are
-#    set via containerEnv in devcontainer-feature.json (not install.sh).
-# ---------------------------------------------------------------------------
-check_env() {
-    local var="$1"
-    local expected="$2"
-    local actual="${!var:-}"
-    if [ "${actual}" != "${expected}" ]; then
-        echo "FAIL: ${var}='${actual}' (expected '${expected}')"
-        exit 1
-    fi
-    echo "PASS: ${var}=${actual}"
-}
+check "ruff is listed by uv tool list" bash -c "uv tool list | grep -Eq '^ruff( |$)'"
+check "pytest is listed by uv tool list" bash -c "uv tool list | grep -Eq '^pytest( |$)'"
+check "ty is listed by uv tool list" bash -c "uv tool list | grep -Eq '^ty( |$)'"
+check "black is listed by uv tool list" bash -c "uv tool list | grep -Eq '^black( |$)'"
+check "pyright is listed by uv tool list" bash -c "uv tool list | grep -Eq '^pyright( |$)'"
+check "pre-commit is listed by uv tool list" bash -c "uv tool list | grep -Eq '^pre-commit( |$)'"
+check "rust-just is listed by uv tool list" bash -c "uv tool list | grep -Eq '^rust-just( |$)'"
 
-check_env UV_TOOL_DIR     "/usr/local/share/uv/tools"
-check_env UV_TOOL_BIN_DIR "/usr/local/share/uv/bin"
+check "rust-just can be uninstalled by uv" bash -c "uv tool uninstall rust-just && ! uv tool list | grep -Eq '^rust-just( |$)'"
 
-# ---------------------------------------------------------------------------
-# 4. /usr/local/share/uv/bin is on PATH
-# ---------------------------------------------------------------------------
-if [[ ":${PATH}:" != *":/usr/local/share/uv/bin:"* ]]; then
-    echo "FAIL: /usr/local/share/uv/bin is not on PATH (PATH=${PATH})"
-    exit 1
-fi
-echo "PASS: /usr/local/share/uv/bin is on PATH"
-
-# ---------------------------------------------------------------------------
-# 5. Default tools are installed and executable
-# ---------------------------------------------------------------------------
-DEFAULT_TOOLS="ruff pytest ty black pyright pre-commit just"
-for tool in ${DEFAULT_TOOLS}; do
-    bin="/usr/local/share/uv/bin/${tool}"
-    if [ ! -x "${bin}" ]; then
-        echo "FAIL: ${bin} not found or not executable"
-        exit 1
-    fi
-    echo "PASS: ${tool} installed — $("${bin}" --version 2>&1 | head -1)"
-done
-
-echo ""
-echo "All tests passed."
+reportResults

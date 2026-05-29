@@ -1,27 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-# ---------------------------------------------------------------------------
-# Remote user (always set by the devcontainer CLI)
-# ---------------------------------------------------------------------------
-REMOTE_USER="${_REMOTE_USER}"
-REMOTE_USER_HOME="${_REMOTE_USER_HOME}"
-
-# ---------------------------------------------------------------------------
-# Feature options (injected by devcontainer CLI as env vars)
-# ---------------------------------------------------------------------------
+# Feature options injected by devcontainer CLI.
 UV_VERSION="${VERSION:-"latest"}"
 TOOLS_TO_INSTALL="${TOOLSTOINSTALL-"ruff,pytest,ty,black,pyright,pre-commit,rust-just"}"
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
-UV_OPT_DIR="/opt/uv"           # volume mount point — cache only
-UV_TOOL_BASE="/usr/local/share/uv"  # image layer — tool storage
+UV_OPT_DIR="/opt/uv"
 
-# ---------------------------------------------------------------------------
-# Helper: assert a command exists on PATH
-# ---------------------------------------------------------------------------
 require_command() {
     local cmd="$1"
     if ! command -v "${cmd}" > /dev/null 2>&1; then
@@ -30,151 +15,146 @@ require_command() {
     fi
 }
 
-# ---------------------------------------------------------------------------
-# OS / distro detection
-# ---------------------------------------------------------------------------
-# shellcheck source=/dev/null
-. /etc/os-release
-OS_ID="${ID:-unknown}"
-OS_ID_LIKE="${ID_LIKE:-}"
-
-is_debian_family() {
-    [[ "${OS_ID}" == "debian" || "${OS_ID}" == "ubuntu" \
-        || "${OS_ID_LIKE}" =~ debian ]]
-}
-
-is_fedora_family() {
-    [[ "${OS_ID}" == "fedora" || "${OS_ID}" == "rhel" \
-        || "${OS_ID}" == "almalinux" \
-        || "${OS_ID_LIKE}" =~ rhel || "${OS_ID_LIKE}" =~ fedora ]]
-}
-
-is_arch_linux() {
-    [[ "${OS_ID}" == "arch" || "${OS_ID_LIKE}" =~ arch ]]
-}
-
-is_alpine() {
-    [[ "${OS_ID}" == "alpine" ]]
-}
-
-# ---------------------------------------------------------------------------
-# Helper: install OS packages (distro-aware)
-# ---------------------------------------------------------------------------
-install_packages() {
-    if is_debian_family; then
-        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"
-    elif is_fedora_family; then
-        dnf install -y "$@"
-    elif is_arch_linux; then
-        pacman -Sy --noconfirm "$@"
-    elif is_alpine; then
-        apk add --no-cache "$@"
+remote_user_do() {
+    if [ "$(id -u)" -eq 0 ] && [ "${_REMOTE_USER}" != "root" ]; then
+        local command
+        printf -v command "%q " "$@"
+        su "${_REMOTE_USER}" -c "${command}"
     else
-        echo "WARNING: unknown distro — skipping package install for: $*" >&2
+        "$@"
     fi
 }
 
-# ---------------------------------------------------------------------------
-# 1. Install prerequisites (curl + TLS)
-# ---------------------------------------------------------------------------
-echo "==> Installing prerequisites..."
-if ! command -v curl > /dev/null 2>&1; then
-    if is_debian_family; then
-        apt-get update -y
-        install_packages curl ca-certificates
-    elif is_fedora_family; then
-        install_packages curl ca-certificates
-    elif is_arch_linux; then
-        pacman -Sy --noconfirm
-        install_packages curl ca-certificates
-    elif is_alpine; then
-        install_packages curl ca-certificates
+set_remote_ownership() {
+    chown -R "${_REMOTE_USER}:${_REMOTE_USER}" "$@"
+}
+
+install_apt_deps() {
+    apt-get update -y
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"
+}
+
+install_apk_deps() {
+    apk add --no-cache "$@"
+}
+
+install_dnf_deps() {
+    dnf install -y "$@"
+}
+
+install_yum_deps() {
+    yum install -y "$@"
+}
+
+install_pacman_deps() {
+    pacman -Sy --noconfirm "$@"
+}
+
+detect_package_manager() {
+    if command -v apt-get > /dev/null 2>&1; then
+        echo apt
+    elif command -v apk > /dev/null 2>&1; then
+        echo apk
+    elif command -v dnf > /dev/null 2>&1; then
+        echo dnf
+    elif command -v yum > /dev/null 2>&1; then
+        echo yum
+    elif command -v pacman > /dev/null 2>&1; then
+        echo pacman
+    else
+        echo "ERROR: unsupported package manager for uv feature" >&2
+        exit 1
     fi
-fi
-require_command curl
+}
 
-# ---------------------------------------------------------------------------
-# 2. Create directory skeleton under /opt/uv/ (volume mount point)
-#    These sub-directories are created in the image layer here.
-#    When the volume is mounted at container start, it creates its own
-#    directories on first use — but having them pre-created avoids
-#    permission errors when uv first writes.
-# ---------------------------------------------------------------------------
-echo "==> Creating /opt/uv/ directory skeleton..."
-mkdir -p \
-    "${UV_OPT_DIR}/python" \
-    "${UV_OPT_DIR}/cache" \
-    "${UV_OPT_DIR}/venv"
-chown -R "${REMOTE_USER}:${REMOTE_USER}" "${UV_OPT_DIR}"
+install_deps() {
+    case "$(detect_package_manager)" in
+        apt) install_apt_deps "$@" ;;
+        apk) install_apk_deps "$@" ;;
+        dnf) install_dnf_deps "$@" ;;
+        yum) install_yum_deps "$@" ;;
+        pacman) install_pacman_deps "$@" ;;
+        *)
+            echo "ERROR: unsupported package manager for uv feature" >&2
+            exit 1
+            ;;
+    esac
+}
 
-# ---------------------------------------------------------------------------
-# 3. Create tool storage directories (image layer, outside volume)
-# ---------------------------------------------------------------------------
-echo "==> Creating tool storage directories..."
-mkdir -p \
-    "${UV_TOOL_BASE}/tools" \
-    "${UV_TOOL_BASE}/bin"
-chown -R "${REMOTE_USER}:${REMOTE_USER}" "${UV_TOOL_BASE}"
+install_prerequisites() {
+    echo "==> Installing prerequisites..."
+    install_deps curl ca-certificates
+    require_command curl
+}
 
-# ---------------------------------------------------------------------------
-# 4. Write environment variables to /etc/profile.d/uv.sh
-#    Sourced by login shells on all major distros.
-# ---------------------------------------------------------------------------
-echo "==> Writing /etc/profile.d/uv.sh..."
-cat > /etc/profile.d/uv.sh << 'EOF'
-# uv devcontainer feature — tool paths (cache paths set via containerEnv)
-export UV_TOOL_DIR="/usr/local/share/uv/tools"
-export UV_TOOL_BIN_DIR="/usr/local/share/uv/bin"
-export PATH="/usr/local/share/uv/bin:${PATH}"
-EOF
-chmod 644 /etc/profile.d/uv.sh
+create_uv_cache_dirs() {
+    echo "==> Creating /opt/uv/ directory skeleton..."
+    mkdir -p \
+        "${UV_OPT_DIR}/python" \
+        "${UV_OPT_DIR}/cache" \
+        "${UV_OPT_DIR}/venv"
+    set_remote_ownership "${UV_OPT_DIR}"
+}
 
-# ---------------------------------------------------------------------------
-# 5. Install uv binary
-#    UV_UNMANAGED_INSTALL places the binary in the given directory and
-#    disables uv's self-update mechanism — appropriate for devcontainers.
-# ---------------------------------------------------------------------------
-echo "==> Installing uv (version: ${UV_VERSION})..."
-if [ "${UV_VERSION}" = "latest" ]; then
-    curl -LsSf https://astral.sh/uv/install.sh \
-        | env UV_UNMANAGED_INSTALL="/usr/local/bin" sh
-else
-    curl -LsSf https://astral.sh/uv/install.sh \
-        | env UV_UNMANAGED_INSTALL="/usr/local/bin" UV_VERSION="${UV_VERSION}" sh
-fi
+install_uv() {
+    echo "==> Installing uv (version: ${UV_VERSION})..."
+    if [ "${UV_VERSION}" = "latest" ]; then
+        curl -LsSf https://astral.sh/uv/install.sh \
+            | env UV_UNMANAGED_INSTALL="/usr/local/bin" sh
+    else
+        curl -LsSf https://astral.sh/uv/install.sh \
+            | env UV_UNMANAGED_INSTALL="/usr/local/bin" UV_VERSION="${UV_VERSION}" sh
+    fi
+    require_command uv
+}
 
-require_command uv
-echo "    uv $(uv --version)"
+print_uv_version() {
+    echo "    uv $(uv --version)"
+}
 
-# ---------------------------------------------------------------------------
-# 6. Install tools via `uv tool install`
-#    Run as the build user (root) with explicit UV paths so tools land
-#    in the image layer under /usr/local/share/uv/ — outside the volume.
-# ---------------------------------------------------------------------------
-if [ -z "${TOOLS_TO_INSTALL}" ]; then
-    echo "==> toolsToInstall is empty — skipping tool installation."
-else
-    echo "==> Installing tools: ${TOOLS_TO_INSTALL}"
+parse_tools_to_install() {
+    local -a raw_tools
+    local raw
+    local tool
 
-    # Split on comma, strip whitespace, skip empty entries
-    IFS=',' read -ra RAW_TOOLS <<< "${TOOLS_TO_INSTALL}"
-    for raw in "${RAW_TOOLS[@]}"; do
-        tool="${raw// /}"   # strip spaces
+    IFS=',' read -ra raw_tools <<< "${TOOLS_TO_INSTALL}"
+    for raw in "${raw_tools[@]}"; do
+        tool="${raw// /}"
         [ -z "${tool}" ] && continue
-
-        echo "    -> uv tool install ${tool}"
-        HOME="${REMOTE_USER_HOME}" \
-        UV_TOOL_DIR="${UV_TOOL_BASE}/tools" \
-        UV_TOOL_BIN_DIR="${UV_TOOL_BASE}/bin" \
-        UV_CACHE_DIR="${UV_OPT_DIR}/cache" \
-        uv tool install "${tool}"
+        echo "${tool}"
     done
-fi
+}
 
-# ---------------------------------------------------------------------------
-# 7. Ensure /opt/uv/ ownership is correct after any writes
-# ---------------------------------------------------------------------------
-chown -R "${REMOTE_USER}:${REMOTE_USER}" "${UV_OPT_DIR}"
-chown -R "${REMOTE_USER}:${REMOTE_USER}" "${UV_TOOL_BASE}"
+install_uv_tool() {
+    local tool="$1"
 
-echo "==> uv feature installation complete."
+    echo "    -> uv tool install ${tool}"
+    remote_user_do env \
+        HOME="${_REMOTE_USER_HOME}" \
+        UV_CACHE_DIR="${UV_OPT_DIR}/cache" \
+        /usr/local/bin/uv tool install "${tool}"
+}
+
+install_uv_tools() {
+    if [ -z "${TOOLS_TO_INSTALL}" ]; then
+        echo "==> toolsToInstall is empty — skipping tool installation."
+        return
+    fi
+
+    echo "==> Installing tools: ${TOOLS_TO_INSTALL}"
+    while IFS= read -r tool; do
+        install_uv_tool "${tool}"
+    done < <(parse_tools_to_install)
+}
+
+main() {
+    install_prerequisites
+    create_uv_cache_dirs
+    install_uv
+    print_uv_version
+    install_uv_tools
+    set_remote_ownership "${UV_OPT_DIR}"
+    echo "==> uv feature installation complete."
+}
+
+main "$@"

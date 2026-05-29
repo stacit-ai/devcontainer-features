@@ -1,31 +1,24 @@
 #!/bin/bash
-# Scenario: toolsToInstall="" — verifies uv is present but no tools are installed.
-set -euo pipefail
+set -e
 
-# shellcheck source=/dev/null
-. /etc/profile.d/uv.sh
+source dev-container-features-test-lib
 
-# ---------------------------------------------------------------------------
-# uv binary must be present
-# ---------------------------------------------------------------------------
-if ! command -v uv > /dev/null 2>&1; then
-    echo "FAIL: 'uv' not found on PATH"
-    exit 1
-fi
-echo "PASS: uv on PATH — $(uv --version)"
+check "uv is available" uv --version
 
-# ---------------------------------------------------------------------------
-# Tool binaries must NOT be present (empty toolsToInstall)
-# ---------------------------------------------------------------------------
-DEFAULT_TOOLS="ruff pytest ty black pyright pre-commit just"
-for tool in ${DEFAULT_TOOLS}; do
-    bin="/usr/local/share/uv/bin/${tool}"
-    if [ -x "${bin}" ]; then
-        echo "FAIL: ${bin} exists but toolsToInstall was empty"
-        exit 1
-    fi
-    echo "PASS: ${tool} correctly absent"
-done
+check "ruff binary is absent" test ! -x "${HOME}/.local/bin/ruff"
+check "pytest binary is absent" test ! -x "${HOME}/.local/bin/pytest"
+check "ty binary is absent" test ! -x "${HOME}/.local/bin/ty"
+check "black binary is absent" test ! -x "${HOME}/.local/bin/black"
+check "pyright binary is absent" test ! -x "${HOME}/.local/bin/pyright"
+check "pre-commit binary is absent" test ! -x "${HOME}/.local/bin/pre-commit"
+check "just binary is absent" test ! -x "${HOME}/.local/bin/just"
 
-echo ""
-echo "All empty-tools scenario tests passed."
+check "ruff is absent from uv tool list" bash -c "! uv tool list | grep -Eq '^ruff( |$)'"
+check "pytest is absent from uv tool list" bash -c "! uv tool list | grep -Eq '^pytest( |$)'"
+check "ty is absent from uv tool list" bash -c "! uv tool list | grep -Eq '^ty( |$)'"
+check "black is absent from uv tool list" bash -c "! uv tool list | grep -Eq '^black( |$)'"
+check "pyright is absent from uv tool list" bash -c "! uv tool list | grep -Eq '^pyright( |$)'"
+check "pre-commit is absent from uv tool list" bash -c "! uv tool list | grep -Eq '^pre-commit( |$)'"
+check "rust-just is absent from uv tool list" bash -c "! uv tool list | grep -Eq '^rust-just( |$)'"
+
+reportResults

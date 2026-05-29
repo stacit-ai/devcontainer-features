@@ -1,10 +1,16 @@
 {
-    "empty-tools": {
-        "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-        "features": {
-            "uv": {
-                "toolsToInstall": ""
-            }
-        }
+  "empty-tools": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "uv": {
+        "toolsToInstall": ""
+      }
     }
+  },
+  "remote-user-tools": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "uv": {}
+    }
+  }
 }

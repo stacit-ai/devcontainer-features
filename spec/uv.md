@@ -10,7 +10,8 @@ project manager written in Rust.  The feature:
    to a named Docker volume so Python interpreters and download caches survive
    devcontainer rebuilds.
 3. Optionally pre-installs a configurable list of global Python tools via
-   `uv tool install`.
+   `uv tool install`, so users can manage them later with `uv tool list` and
+   `uv tool uninstall`.
 
 ---
 
@@ -46,18 +47,16 @@ project manager written in Rust.  The feature:
   cache/                   ← UV_CACHE_DIR           (package download cache)
   venv/                    ← UV_PROJECT_ENVIRONMENT (shared project venv)
 
-/usr/local/share/uv/       ← tool storage (image layer, always accessible)
-  tools/                   ← UV_TOOL_DIR
-  bin/                     ← UV_TOOL_BIN_DIR  (added to PATH)
+~/.local/share/uv/tools/   ← remote user's default uv tool storage
+~/.local/bin/              ← remote user's default uv tool executable directory
 ```
 
 ### Volume Strategy
 
 `/opt/uv/` is declared as a named Docker volume (`uv-${devcontainerId}`).
 Volumes are mounted at **container start**, not during image build.  Tools
-pre-installed by `install.sh` must therefore live **outside** `/opt/uv/` —
-otherwise the volume mount would hide them at runtime.  Tool binaries are
-stored in `/usr/local/share/uv/` (image layer), which is always visible.
+pre-installed by `install.sh` are installed as the remote user, using uv's
+default user tool directories.  They are not written to `/opt/uv/`.
 
 The volume provides caching for expensive operations:
 - `UV_PYTHON_INSTALL_DIR` — avoids re-downloading Python interpreters
@@ -66,31 +65,28 @@ The volume provides caching for expensive operations:
 
 ---
 
-## Environment Variables Set
+## Runtime Environment
 
-All variables are written to `/etc/profile.d/uv.sh`:
+Runtime variables are declared in `devcontainer-feature.json` via
+`containerEnv`:
 
 ```
 UV_PYTHON_INSTALL_DIR=/opt/uv/python
 UV_CACHE_DIR=/opt/uv/cache
 UV_PROJECT_ENVIRONMENT=/opt/uv/venv
-UV_TOOL_DIR=/usr/local/share/uv/tools
-UV_TOOL_BIN_DIR=/usr/local/share/uv/bin
-PATH=/usr/local/share/uv/bin:$PATH   (appended)
 ```
+
+The feature does not set `UV_TOOL_DIR`, `UV_TOOL_BIN_DIR`, or `PATH`.  Running
+`uv tool install` as the remote user lets `uv tool list` and
+`uv tool uninstall` manage the pre-installed tools through uv's defaults.
 
 ---
 
 ## Implementation Notes / Gotchas
 
-- **`su --login` resets the environment.** When `remote_user_do` calls
-  `su --login`, a new login shell is started and inherits only the login
-  environment.  Pass UV env vars explicitly via `env` when running
-  `uv tool install` as the remote user.
-
-- **Volume hides image-layer content at runtime.** Do not install tools or
-  write required files to `/opt/uv/` in `install.sh`.  Only create the
-  directory skeleton for the volume mount to work cleanly.
+- **Install tools as the remote user.** Do not set global `UV_TOOL_DIR` or
+  `UV_TOOL_BIN_DIR` for tool installation.  Use uv's default per-user tool
+  directories so the remote user can manage pre-installed tools normally.
 
 - **uv installer accepts `UV_UNMANAGED_INSTALL`.** Setting this env var
   installs the binary to the given path and disables uv's self-update
@@ -100,9 +96,9 @@ PATH=/usr/local/share/uv/bin:$PATH   (appended)
 - **Alpine uses musl libc.** uv distributes musl builds; the official
   installer handles arch/libc detection automatically.
 
-- **Arch Linux: `curl` may already be present** but `ca-certificates` might
-  be named differently (`ca-certificates-utils`).  Use `install_packages`
-  with the distro guard.
+- **Package managers are explicit.** Dependency installation fails for package
+  managers outside the feature's supported image families instead of silently
+  skipping prerequisites.
 
 - **`toolsToInstall` parsing:** split on `,`, trim whitespace around each
   entry, skip empty entries.
@@ -125,9 +121,11 @@ PATH=/usr/local/share/uv/bin:$PATH   (appended)
 3. `UV_PYTHON_INSTALL_DIR` is set to `/opt/uv/python` in login environment
 4. `UV_CACHE_DIR` is set to `/opt/uv/cache`
 5. `UV_PROJECT_ENVIRONMENT` is set to `/opt/uv/venv`
-6. `/usr/local/share/uv/bin` is on `PATH`
-7. All default tools (ruff, pytest, ty, black, pyright, pre-commit, rust-just)
-   are installed and executable
-8. `toolsToInstall=""` skips tool installation (no binaries present)
-9. Re-install is idempotent (second install exits 0, `uv --version` works)
-10. Specific `version` option installs that exact version
+6. All default tools (ruff, pytest, ty, black, pyright, pre-commit, rust-just)
+   are installed under the remote user's uv tool state
+7. Default tools are visible through `uv tool list`
+8. Default tools can be removed by the remote user with `uv tool uninstall`
+9. Non-root remote users receive tools in their own uv tool state
+10. `toolsToInstall=""` skips tool installation (no binaries present)
+11. Re-install is idempotent (second install exits 0, `uv --version` works)
+12. Specific `version` option installs that exact version
