@@ -124,8 +124,7 @@ parse_tools_to_install() {
 
 install_uv_tool() {
     local tool="$1"
-    local uv_command
-    uv_command="$(find_user_home)/.local/bin/uv"
+    local uv_command="${_REMOTE_USER_HOME}/.local/bin/uv"
 
     echo "    -> uv tool install ${tool}"
     remote_user_do "${uv_command}" tool install "${tool}"
