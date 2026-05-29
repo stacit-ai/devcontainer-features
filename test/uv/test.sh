@@ -23,7 +23,9 @@ fi
 echo "PASS: uvx on PATH — $(uvx --version)"
 
 # ---------------------------------------------------------------------------
-# 3. UV_* environment variables are set
+# 3. UV_TOOL_* environment variables are set (from /etc/profile.d/uv.sh)
+#    Note: UV_PYTHON_INSTALL_DIR, UV_CACHE_DIR, UV_PROJECT_ENVIRONMENT are
+#    set via containerEnv in devcontainer-feature.json (not install.sh).
 # ---------------------------------------------------------------------------
 check_env() {
     local var="$1"
@@ -36,11 +38,8 @@ check_env() {
     echo "PASS: ${var}=${actual}"
 }
 
-check_env UV_PYTHON_INSTALL_DIR "/opt/uv/python"
-check_env UV_CACHE_DIR          "/opt/uv/cache"
-check_env UV_PROJECT_ENVIRONMENT "/opt/uv/venv"
-check_env UV_TOOL_DIR            "/usr/local/share/uv/tools"
-check_env UV_TOOL_BIN_DIR        "/usr/local/share/uv/bin"
+check_env UV_TOOL_DIR     "/usr/local/share/uv/tools"
+check_env UV_TOOL_BIN_DIR "/usr/local/share/uv/bin"
 
 # ---------------------------------------------------------------------------
 # 4. /usr/local/share/uv/bin is on PATH

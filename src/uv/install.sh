@@ -2,33 +2,22 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# Remote user
+# Remote user (always set by the devcontainer CLI)
 # ---------------------------------------------------------------------------
-REMOTE_USER="${_REMOTE_USER:-"$(id -un)"}"
-REMOTE_USER_HOME="${_REMOTE_USER_HOME:-"$(eval echo "~${REMOTE_USER}")"}"
+REMOTE_USER="${_REMOTE_USER}"
+REMOTE_USER_HOME="${_REMOTE_USER_HOME}"
 
 # ---------------------------------------------------------------------------
 # Feature options (injected by devcontainer CLI as env vars)
 # ---------------------------------------------------------------------------
 UV_VERSION="${VERSION:-"latest"}"
-TOOLS_TO_INSTALL="${TOOLSTOINSTALL:-"ruff,pytest,ty,black,pyright,pre-commit,rust-just"}"
+TOOLS_TO_INSTALL="${TOOLSTOINSTALL-"ruff,pytest,ty,black,pyright,pre-commit,rust-just"}"
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 UV_OPT_DIR="/opt/uv"           # volume mount point — cache only
 UV_TOOL_BASE="/usr/local/share/uv"  # image layer — tool storage
-
-# ---------------------------------------------------------------------------
-# Helper: run a command as the remote user
-# ---------------------------------------------------------------------------
-remote_user_do() {
-    if [ "$(id -u)" -eq 0 ] && [ "${REMOTE_USER}" != "root" ]; then
-        su --login "${REMOTE_USER}" -- "$@"
-    else
-        "$@"
-    fi
-}
 
 # ---------------------------------------------------------------------------
 # Helper: assert a command exists on PATH
@@ -133,10 +122,7 @@ chown -R "${REMOTE_USER}:${REMOTE_USER}" "${UV_TOOL_BASE}"
 # ---------------------------------------------------------------------------
 echo "==> Writing /etc/profile.d/uv.sh..."
 cat > /etc/profile.d/uv.sh << 'EOF'
-# uv devcontainer feature — environment configuration
-export UV_PYTHON_INSTALL_DIR="/opt/uv/python"
-export UV_CACHE_DIR="/opt/uv/cache"
-export UV_PROJECT_ENVIRONMENT="/opt/uv/venv"
+# uv devcontainer feature — tool paths (cache paths set via containerEnv)
 export UV_TOOL_DIR="/usr/local/share/uv/tools"
 export UV_TOOL_BIN_DIR="/usr/local/share/uv/bin"
 export PATH="/usr/local/share/uv/bin:${PATH}"
@@ -161,9 +147,9 @@ require_command uv
 echo "    uv $(uv --version)"
 
 # ---------------------------------------------------------------------------
-# 6. Install tools via `uv tool install` (run as remote user)
-#    UV env vars are passed explicitly because `su --login` resets the
-#    environment and /etc/profile.d/ may not be sourced before uv runs.
+# 6. Install tools via `uv tool install`
+#    Run as the build user (root) with explicit UV paths so tools land
+#    in the image layer under /usr/local/share/uv/ — outside the volume.
 # ---------------------------------------------------------------------------
 if [ -z "${TOOLS_TO_INSTALL}" ]; then
     echo "==> toolsToInstall is empty — skipping tool installation."
@@ -177,13 +163,11 @@ else
         [ -z "${tool}" ] && continue
 
         echo "    -> uv tool install ${tool}"
-        remote_user_do env \
-            HOME="${REMOTE_USER_HOME}" \
-            PATH="/usr/local/bin:/usr/local/share/uv/bin:${PATH}" \
-            UV_TOOL_DIR="${UV_TOOL_BASE}/tools" \
-            UV_TOOL_BIN_DIR="${UV_TOOL_BASE}/bin" \
-            UV_CACHE_DIR="${UV_OPT_DIR}/cache" \
-            uv tool install "${tool}"
+        HOME="${REMOTE_USER_HOME}" \
+        UV_TOOL_DIR="${UV_TOOL_BASE}/tools" \
+        UV_TOOL_BIN_DIR="${UV_TOOL_BASE}/bin" \
+        UV_CACHE_DIR="${UV_OPT_DIR}/cache" \
+        uv tool install "${tool}"
     done
 fi
 
