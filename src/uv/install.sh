@@ -87,10 +87,7 @@ install_prerequisites() {
 
 create_uv_cache_dirs() {
     echo "==> Creating /opt/uv/ directory skeleton..."
-    mkdir -p \
-        "${UV_OPT_DIR}/python" \
-        "${UV_OPT_DIR}/cache" \
-        "${UV_OPT_DIR}/venv"
+    mkdir -p ${UV_OPT_DIR}
     set_remote_ownership "${UV_OPT_DIR}"
 }
 
