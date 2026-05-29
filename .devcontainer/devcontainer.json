@@ -3,7 +3,7 @@
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:3": {},
     "ghcr.io/devcontainers/features/python:1": {
-      "toolsToInstall": "pre-commit"
+      "toolsToInstall": "pre-commit,rust-just"
     }
   },
   "remoteUser": "node",
