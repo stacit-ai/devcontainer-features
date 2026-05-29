@@ -50,22 +50,27 @@ The CI `build-matrix` job reads this file to create the `baseImage` matrix for
 
 ## test.sh / duplicate.sh Format
 
-All test scripts share the same structure:
+All feature test scripts use the devcontainer feature test library. Keep them
+as declarative `check` lists rather than custom Bash test frameworks:
 
 ```bash
 #!/bin/bash
 set -e
 
-source dev-container-features-test-lib   # lib bundled with devcontainers/cli
+source dev-container-features-test-lib
 
-check "description" <command> [args...]  # each assertion
-check "description" bash -c "..."        # multi-token checks via bash -c
+check "description" <command> [args...]
+check "description" bash -c "..."
 
-reportResults  # always last; exits non-zero if any check failed
+reportResults
 ```
 
 `check` records pass if the command exits 0, fail otherwise.
 `reportResults` prints a summary table and exits 1 if any check failed.
+Do not define custom `assert_*` functions, loops that print their own PASS/FAIL
+messages, or ad hoc summary handling in feature tests. For compound conditions,
+use `check "description" bash -c "..."` so the standard library still owns
+result collection and reporting.
 
 **`duplicate.sh`** is run after a second install of the feature (to verify
 idempotency).  It typically re-runs the same checks as `test.sh`.
@@ -101,8 +106,8 @@ Each scenario entry requires:
 - `"image"` — the base container image
 - `"features"` — feature id → options map (use feature id as key, not full reference)
 
-The corresponding script (e.g. `with_no_tools.sh`) is a standard test script
-(same format as `test.sh`) that runs inside the scenario's container.
+The corresponding script (e.g. `with_no_tools.sh`) is a standard test-library
+script with `check` assertions and `reportResults`, same as `test.sh`.
 
 ## Running Tests Locally
 
@@ -151,6 +156,13 @@ for the feature to be detected.
 The `baseImage` matrix is built from `test/<name>/compatibility.txt`.  Create
 this file when adding the feature (see format above); if omitted, CI tests only
 against `mcr.microsoft.com/devcontainers/base:ubuntu`.
+
+Both test workflows write a GitHub Step Summary listing the detected features
+selected for testing.  `test-multios.yaml` also reports the generated
+feature/base-image matrix.
+
+Longer workflow `run: |` shell blocks follow the same function-oriented Bash
+structure required by `.agents/knowledge/QUALITY.md`.
 
 ## CI Jobs Explained
 

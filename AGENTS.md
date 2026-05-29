@@ -34,7 +34,11 @@ Every feature MUST have all three parts. `src/<name>/`, `spec/<name>.md`, and
 - **Language**: Bash (install.sh), JSON (devcontainer-feature.json)
 - **install.sh**: always starts with `set -euo pipefail`; runs as root;
   delegates user-side work to `remote_user_do()` — see `.agents/knowledge/SNIPPETS.md`
-  for copy-paste helper patterns
+  for copy-paste helper patterns. Non-trivial Bash should be organized as
+  named functions with a clear entrypoint, not loose command sequences.
+- **feature tests**: `test/<name>/*.sh` must use
+  `source dev-container-features-test-lib`, `check`, and `reportResults`;
+  do not build a custom Bash assertion/reporting framework.
 - **src/<name>/ scope**: only files inside the feature directory are copied into
   the OCI artifact; files outside `src/<name>/` are invisible to the feature at
   runtime. Add `NOTE.md` for human-readable install-time hints. Never manually

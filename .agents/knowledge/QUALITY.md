@@ -58,6 +58,28 @@ git config --global user.email "<username>@users.noreply.github.com"
 
 Verify: `git config user.email`
 
+## Shell Structure
+
+Bash code must be organized around named functions when it does more than a
+couple of direct commands. This applies to `install.sh`, helper scripts, and
+GitHub Actions `run: |` blocks.
+
+- Keep top-level Bash limited to constants, function definitions, and a final
+  `main "$@"` call for non-trivial scripts.
+- Use verb-phrase function names to document intent, such as
+  `write_detected_features_summary`, `install_deps`, or `create_uv_cache_dirs`.
+- Prefer self-documenting function names over comment banners that separate
+  long blocks of commands.
+- Extract a function once a block has conditionals, loops, `case` statements,
+  multi-stage output generation, or explicit error handling.
+- Devcontainer feature tests are the exception: `test/<name>/*.sh` must use
+  `source dev-container-features-test-lib`, express assertions with `check`,
+  and end with `reportResults`. Do not reimplement pass/fail reporting,
+  assertion helpers, or a custom test runner in feature tests.
+- Short one- or two-command `run:` blocks may remain inline. Longer workflow
+  shell blocks must define functions and call an entrypoint instead of listing
+  a loose sequence of commands.
+
 ## Pre-Commit Checklist
 
 Run these four checks **before every commit**, in order:

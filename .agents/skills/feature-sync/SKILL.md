@@ -53,6 +53,10 @@ out of sync.  This skill enforces consistency after any change.
 - **test.sh runs as the remote user, not root** — assertions that check
   files written by `remote_user_do()` (e.g. `~/.local/bin/<tool>`) must use
   paths relative to the test user's home, not `/root/`.
+- **Feature tests use the standard test library** — write assertions as
+  `check "description" <command>` and end with `reportResults`. Use
+  `check "description" bash -c "..."` for compound conditions instead of
+  custom `assert_*` functions or PASS/FAIL reporting.
 - **CI filters are auto-generated** — `test.yaml` and `test-multios.yaml`
   scan `src/` at runtime.  Editing those workflow files is never needed when
   adding or removing a feature; only `test/<name>/compatibility.txt` needs

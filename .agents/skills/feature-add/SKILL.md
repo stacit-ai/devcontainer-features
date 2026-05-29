@@ -70,6 +70,9 @@ batch implementation.
    reportResults
    ```
    `check` assertions are added one at a time during Phase 2.
+   Feature tests must use the devcontainer test library for assertion tracking
+   and reporting. Do not create custom `assert_*` functions or PASS/FAIL
+   summary logic in feature test scripts.
 
 6. **Create `test/<name>/compatibility.txt`** — list the base images this
    feature should be tested against, one per line.  Lines starting with `#`
@@ -113,6 +116,8 @@ Each cycle: **RED → GREEN → next slice**.
 **RED — write ONE check:**
 Add a single `check "description" <command>` line to `test/<name>/test.sh`
 (or a new scenario script if the behavior requires a non-default option).
+Use `check "description" bash -c "..."` for compound shell conditions instead
+of adding custom test helpers.
 Run the test and confirm it **fails**:
 ```bash
 just test-image <name> mcr.microsoft.com/devcontainers/base:ubuntu
@@ -147,10 +152,10 @@ second install.
 - **id = directory name** — `devcontainer-feature.json`'s `"id"` field must
   exactly match the subdirectory name under `src/`.  The `validate.yml`
   workflow enforces this; mismatches cause CI failure.
-- **install.sh runs as root** — never assume a user home directory without
-  using `find_user_home()`.  Direct writes to `~/` that bypass `remote_user_do`
-  will land in `/root/` and be invisible to the container user.  See
-  `.agents/knowledge/SNIPPETS.md` for the `remote_user_do` pattern.
+- **install.sh runs as root** — user-side effects must go through
+  `remote_user_do`, using `_REMOTE_USER_HOME` when an explicit home is needed.
+  Direct writes to `~/` will land in `/root/` and be invisible to the container
+  user.  See `.agents/knowledge/SNIPPETS.md` for the helper pattern.
 - **CI filters are auto-generated** — `test.yaml` and `test-multios.yaml`
   scan `src/` at runtime.  No manual edits to workflow files are needed when
   adding a feature.
