@@ -1,0 +1,46 @@
+name: "Build Test Matrix"
+description: >
+  For each feature, read test/<name>/compatibility.txt to build a {features,
+  baseImage} matrix. Falls back to mcr.microsoft.com/devcontainers/base:ubuntu
+  when no compatibility.txt is present.
+inputs:
+  features:
+    description: "JSON array of feature names"
+    required: true
+outputs:
+  matrix:
+    description: "JSON matrix object: {include: [{features, baseImage}]}"
+    value: ${{ steps.build.outputs.matrix }}
+runs:
+  using: composite
+  steps:
+    - name: Build test matrix from compatibility.txt
+      id: build
+      shell: bash
+      env:
+        FEATURES: ${{ inputs.features }}
+      run: |
+        include_entries='[]'
+        while IFS= read -r feature; do
+          compat_file="test/${feature}/compatibility.txt"
+          if [ -f "$compat_file" ]; then
+            while IFS= read -r image || [ -n "$image" ]; do
+              image="${image%$'\r'}"
+              [[ -z "$image" || "$image" =~ ^[[:space:]]*# ]] && continue
+              entry=$(jq -cn --arg f "$feature" --arg i "$image" \
+                '{features: $f, baseImage: $i}')
+              include_entries=$(jq -n \
+                --argjson arr "$include_entries" --argjson e "$entry" \
+                '$arr + [$e]')
+            done < "$compat_file"
+          else
+            entry=$(jq -cn --arg f "$feature" \
+              --arg i "mcr.microsoft.com/devcontainers/base:ubuntu" \
+              '{features: $f, baseImage: $i}')
+            include_entries=$(jq -n \
+              --argjson arr "$include_entries" --argjson e "$entry" \
+              '$arr + [$e]')
+          fi
+        done < <(echo "$FEATURES" | jq -r '.[]')
+        echo "matrix=$(jq -cn --argjson inc "$include_entries" '{include: $inc}')" \
+          >> "$GITHUB_OUTPUT"
