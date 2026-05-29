@@ -29,6 +29,8 @@ message is composed and the commit is made.
 
 3. **Lint shell scripts** — if any `src/<name>/install.sh` is staged, run:
    ```bash
+   just lint <name>
+   # or without just:
    shellcheck -S error src/<name>/install.sh
    ```
    Fix all errors before proceeding.

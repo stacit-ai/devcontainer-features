@@ -33,10 +33,12 @@ out of sync.  This skill enforces consistency after any change.
    | `src/<name>/NOTE.md` | No cross-part propagation required; NOTE.md is standalone install-time user guidance |
    | `spec/<name>.md` | Verify `install.sh` actually implements the described behavior; if not, either implement it or update the spec to reflect reality |
    | `test/<name>/test.sh` | Verify the tested commands match actual binary names / paths in `install.sh` |
+   | `test/<name>/compatibility.txt` | If platforms were added or removed, update `spec/<name>.md` platform table to match |
 
-4. **Confirm CI path filters** — ensure `test.yaml` and `test-multios.yaml`
-   both contain a `<name>:` entry in their `dorny/paths-filter` filters.
-   If either is missing, add it following the format in `.agents/knowledge/TESTING.md`.
+4. **CI path filters are auto-generated** — both `test.yaml` and
+   `test-multios.yaml` scan `src/` at runtime; no manual edits to workflow
+   files are needed.  The only per-feature CI artifact to maintain is
+   `test/<name>/compatibility.txt` (the base image list).
 
 5. **Check version bump** — if the change alters observable behavior (new
    option, changed default, removed behavior), increment `version` in
@@ -51,5 +53,7 @@ out of sync.  This skill enforces consistency after any change.
 - **test.sh runs as the remote user, not root** — assertions that check
   files written by `remote_user_do()` (e.g. `~/.local/bin/<tool>`) must use
   paths relative to the test user's home, not `/root/`.
-- **Both CI workflow files** (`test.yaml` and `test-multios.yaml`) each need
-  the path filter entry.  Only updating one silently skips multi-OS coverage.
+- **CI filters are auto-generated** — `test.yaml` and `test-multios.yaml`
+  scan `src/` at runtime.  Editing those workflow files is never needed when
+  adding or removing a feature; only `test/<name>/compatibility.txt` needs
+  to be maintained per feature.

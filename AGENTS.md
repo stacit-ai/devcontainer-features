@@ -17,10 +17,12 @@ devcontainer-features/
 ├── test/
 │   ├── _global/             ← cross-feature integration tests
 │   └── <name>/              ← per-feature tests
+│       ├── compatibility.txt ← base images to test against (one per line)
 │       ├── test.sh          ← default / general tests
 │       ├── duplicate.sh     ← idempotency tests (installed multiple times)
 │       ├── scenarios.json   ← scenario definitions (optional)
 │       └── <scenario>.sh    ← one script per key in scenarios.json
+├── justfile                 ← local dev commands (test, lint, validate)
 └── .github/workflows/       ← CI/CD (test, validate, release, secret scanning)
 ```
 
@@ -31,7 +33,8 @@ Every feature MUST have all three parts. `src/<name>/`, `spec/<name>.md`, and
 
 - **Language**: Bash (install.sh), JSON (devcontainer-feature.json)
 - **install.sh**: always starts with `set -euo pipefail`; runs as root;
-  delegates user-side work to `remote_user_do()`
+  delegates user-side work to `remote_user_do()` — see `.agents/knowledge/SNIPPETS.md`
+  for copy-paste helper patterns
 - **src/<name>/ scope**: only files inside the feature directory are copied into
   the OCI artifact; files outside `src/<name>/` are invisible to the feature at
   runtime. Add `NOTE.md` for human-readable install-time hints. Never manually
@@ -48,14 +51,15 @@ Every feature MUST have all three parts. `src/<name>/`, `spec/<name>.md`, and
 | `spec/<name>.md` | implementing or reviewing any feature; understanding platform support |
 | `.agents/knowledge/QUALITY.md` | writing or reviewing code; before committing |
 | `.agents/knowledge/REFERENCES.md` | needing devcontainer spec, schema, or tool docs |
-| `.agents/knowledge/TESTING.md` | writing or debugging tests; adding a new feature to CI |
+| `.agents/knowledge/TESTING.md` | writing or debugging tests; understanding CI behavior |
+| `.agents/knowledge/SNIPPETS.md` | writing `install.sh`; need a helper function or common pattern |
 
 ## CI/CD
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `test.yaml` | push / PR | `devcontainer features test` on Ubuntu+Debian base images |
-| `test-multios.yaml` | push to main / PR | same tests across Debian, Ubuntu, Arch, Fedora, AlmaLinux, Alpine |
+| `test.yaml` | push / PR | `devcontainer features test`; images from `test/<name>/compatibility.txt` |
+| `test-multios.yaml` | push to main / PR | same; features auto-discovered from `src/`; images from `compatibility.txt` |
 | `validate.yml` | workflow\_dispatch / PR | validate devcontainer-feature.json against schema |
 | `release.yaml` | workflow\_dispatch | publish to GHCR via `devcontainers/action` |
 | `secret.yaml` | push / PR | TruffleHog secret scanning |

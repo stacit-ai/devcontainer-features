@@ -28,10 +28,10 @@ one feature; omit scope for cross-cutting changes.
 ### Examples
 
 ```
-feat(<name>): add support for new option
-fix(<name>): correct ownership of installed files
-test(<name>): add scenario for non-default option
-docs(<name>): document Alpine compatibility caveat
+feat(uv): add fish shell completion support
+fix(uv): correct /opt/uv ownership for non-root user
+test(uv): add scenario for empty toolsToInstall
+docs(uv): document Alpine compatibility caveat
 ci: add AlmaLinux to test-multios matrix
 chore: update dorny/paths-filter to v3
 ```
