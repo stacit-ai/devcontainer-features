@@ -16,10 +16,8 @@ require_command() {
 }
 
 remote_user_do() {
-    if [ "$(id -u)" -eq 0 ] && [ "${_REMOTE_USER}" != "root" ]; then
-        local command
-        printf -v command "%q " "$@"
-        su "${_REMOTE_USER}" -c "${command}"
+    if [ -n "${_REMOTE_USER:-}" ] && [ "${_REMOTE_USER}" != "root" ]; then
+        sudo -i -u "${_REMOTE_USER}" -- "$@"
     else
         "$@"
     fi
@@ -83,7 +81,7 @@ install_deps() {
 
 install_prerequisites() {
     echo "==> Installing prerequisites..."
-    install_deps curl ca-certificates
+    install_deps curl ca-certificates sudo
     require_command curl
 }
 

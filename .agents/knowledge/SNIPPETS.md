@@ -23,10 +23,8 @@ should belong to the final user, not root.
 
 ```bash
 remote_user_do() {
-    if [ "$(id -u)" -eq 0 ] && [ "${_REMOTE_USER}" != "root" ]; then
-        local command
-        printf -v command "%q " "$@"
-        su "${_REMOTE_USER}" -c "${command}"
+    if [ -n "${_REMOTE_USER:-}" ] && [ "${_REMOTE_USER}" != "root" ]; then
+        sudo -i -u "${_REMOTE_USER}" -- "$@"
     else
         "$@"
     fi
