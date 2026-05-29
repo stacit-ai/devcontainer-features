@@ -95,19 +95,18 @@ create_uv_cache_dirs() {
 }
 
 install_uv() {
-    echo "==> Installing uv (version: ${UV_VERSION})..."
-    if [ "${UV_VERSION}" = "latest" ]; then
-        curl -LsSf https://astral.sh/uv/install.sh \
-            | env UV_UNMANAGED_INSTALL="/usr/local/bin" sh
+    local version="$UV_VERSION"
+    local download_url=""
+    echo "==> Installing uv (version: ${version})..."
+    if [ "$version" = "latest" ]; then
+        download_url="https://astral.sh/uv/install.sh"
     else
-        curl -LsSf https://astral.sh/uv/install.sh \
-            | env UV_UNMANAGED_INSTALL="/usr/local/bin" UV_VERSION="${UV_VERSION}" sh
+        download_url="https://astral.sh/uv/${version}/install.sh"
     fi
-    require_command uv
-}
 
-print_uv_version() {
-    echo "    uv $(uv --version)"
+    echo "Downloading and running UV installer from $download_url ..."
+    curl -LsSf "$download_url" | remote_user_do sh
+    echo "UV installation completed."
 }
 
 parse_tools_to_install() {
@@ -125,12 +124,11 @@ parse_tools_to_install() {
 
 install_uv_tool() {
     local tool="$1"
+    local uv_command
+    uv_command="$(find_user_home)/.local/bin/uv"
 
     echo "    -> uv tool install ${tool}"
-    remote_user_do env \
-        HOME="${_REMOTE_USER_HOME}" \
-        UV_CACHE_DIR="${UV_OPT_DIR}/cache" \
-        /usr/local/bin/uv tool install "${tool}"
+    remote_user_do "${uv_command}" tool install "${tool}"
 }
 
 install_uv_tools() {
@@ -149,7 +147,6 @@ main() {
     install_prerequisites
     create_uv_cache_dirs
     install_uv
-    print_uv_version
     install_uv_tools
     set_remote_ownership "${UV_OPT_DIR}"
     echo "==> uv feature installation complete."
