@@ -9,8 +9,8 @@ project manager written in Rust.  The feature:
 2. Centralises all uv state that benefits from caching under `/opt/uv/`, bound
    to a named Docker volume so Python interpreters and download caches survive
    devcontainer rebuilds.
-3. Leaves project and tool installation to the user after the devcontainer is
-   created.
+3. Optionally installs selected CLI tools during feature install via
+  `uv tool install`.
 
 ---
 
@@ -31,6 +31,7 @@ project manager written in Rust.  The feature:
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `version` | string | `"latest"` | uv version to install (e.g. `"0.6.0"`). `"latest"` resolves to the current release. |
+| `toolsToInstall` | string | `""` | Comma-separated list of tools to install with `uv tool install` (e.g. `"pytest,ty"`). Empty string skips tool installation. |
 
 ---
 
@@ -52,7 +53,7 @@ project manager written in Rust.  The feature:
 
 `/opt/uv/` is declared as a named Docker volume (`uv-${devcontainerId}`).
 Volumes are mounted at **container start**, not during image build.  The
-feature does not install Python tools with `uv tool install`.
+feature only installs tools when `toolsToInstall` is non-empty.
 
 The feature pre-creates `/opt/uv/python`, `/opt/uv/cache`, and `/opt/uv/venv`
 during image build.  Docker uses that directory skeleton to initialize the
