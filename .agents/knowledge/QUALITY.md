@@ -116,7 +116,7 @@ Fix all errors before committing.  Warnings may be suppressed with inline
 In an environment with Docker:
 
 ```bash
-devcontainer features test -f <name> .
+devcontainer features test --project-folder . -f <name>
 ```
 
 If Docker is unavailable, note the skip in the commit message body and ensure
