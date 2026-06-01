@@ -1,15 +1,10 @@
 {
-  "empty-tools": {
+  "with_python_feature": {
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
-      "uv": {
-        "toolsToInstall": ""
-      }
-    }
-  },
-  "remote-user-tools": {
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-    "features": {
+      "ghcr.io/devcontainers/features/python:1": {
+        "toolsToInstall": "pre-commit"
+      },
       "uv": {}
     }
   }

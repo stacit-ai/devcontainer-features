@@ -3,7 +3,6 @@ set -euo pipefail
 
 # Feature options injected by devcontainer CLI.
 UV_VERSION="${VERSION:-"latest"}"
-TOOLS_TO_INSTALL="${TOOLSTOINSTALL-"ruff,pytest,ty,black,pyright,pre-commit,rust-just"}"
 
 UV_OPT_DIR="/opt/uv"
 
@@ -106,45 +105,10 @@ install_uv() {
     echo "UV installation completed."
 }
 
-parse_tools_to_install() {
-    local -a raw_tools
-    local raw
-    local tool
-
-    IFS=',' read -ra raw_tools <<< "${TOOLS_TO_INSTALL}"
-    for raw in "${raw_tools[@]}"; do
-        tool="${raw// /}"
-        [ -z "${tool}" ] && continue
-        echo "${tool}"
-    done
-}
-
-install_uv_tool() {
-    local tool="$1"
-    local uv_command="${_REMOTE_USER_HOME}/.local/bin/uv"
-
-    echo "    -> uv tool install ${tool}"
-    remote_user_do "${uv_command}" tool install "${tool}"
-}
-
-install_uv_tools() {
-    if [ -z "${TOOLS_TO_INSTALL}" ]; then
-        echo "==> toolsToInstall is empty — skipping tool installation."
-        return
-    fi
-
-    echo "==> Installing tools: ${TOOLS_TO_INSTALL}"
-    while IFS= read -r tool; do
-        install_uv_tool "${tool}"
-    done < <(parse_tools_to_install)
-}
-
 main() {
     install_prerequisites
     create_uv_cache_dirs
     install_uv
-    install_uv_tools
-    set_remote_ownership "${UV_OPT_DIR}"
     echo "==> uv feature installation complete."
 }
 
