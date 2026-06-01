@@ -7,5 +7,16 @@
       },
       "uv": {}
     }
+  },
+  "with_tools": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "ghcr.io/devcontainers/features/python:1": {
+        "toolsToInstall": "pre-commit"
+      },
+      "uv": {
+        "toolsToInstall": "pytest,ty"
+      }
+    }
   }
 }
