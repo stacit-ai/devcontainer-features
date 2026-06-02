@@ -1,0 +1,58 @@
+{
+  "id": "package",
+  "version": "1.0.0",
+  "name": "Package",
+  "description": "Installs system dependency packages across apt, dnf/yum, apk, pacman, and zypper based images.",
+  "documentationURL": "https://github.com/stacit-ai/devcontainer-features/tree/main/src/package",
+  "options": {
+    "package": {
+      "type": "string",
+      "default": "",
+      "proposals": [
+        "curl"
+      ],
+      "description": "Comma-separated list of packages to install on every supported system."
+    },
+    "apt": {
+      "type": "string",
+      "default": "",
+      "proposals": [
+        "ca-certificates"
+      ],
+      "description": "Comma-separated list of packages to install when apt-get is detected."
+    },
+    "dnf": {
+      "type": "string",
+      "default": "",
+      "proposals": [
+        "ca-certificates"
+      ],
+      "description": "Comma-separated list of packages to install when dnf or yum is detected."
+    },
+    "apk": {
+      "type": "string",
+      "default": "",
+      "proposals": [
+        "ca-certificates"
+      ],
+      "description": "Comma-separated list of packages to install when apk is detected."
+    },
+    "pacman": {
+      "type": "string",
+      "default": "",
+      "proposals": [
+        "ca-certificates"
+      ],
+      "description": "Comma-separated list of packages to install when pacman is detected."
+    },
+    "zypper": {
+      "type": "string",
+      "default": "",
+      "proposals": [
+        "ca-certificates"
+      ],
+      "description": "Comma-separated list of packages to install when zypper is detected."
+    }
+  },
+  "installsAfter": []
+}

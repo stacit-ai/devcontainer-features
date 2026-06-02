@@ -1,0 +1,56 @@
+{
+  "apt": {
+    "image": "mcr.microsoft.com/devcontainers/base:debian",
+    "features": {
+      "package": {
+        "package": "curl,jq",
+        "apt": "tree,zip"
+      }
+    }
+  },
+  "dnf": {
+    "image": "fedora:latest",
+    "features": {
+      "package": {
+        "package": "curl,jq",
+        "dnf": "tree,zip"
+      }
+    }
+  },
+  "yum": {
+    "image": "almalinux:latest",
+    "features": {
+      "package": {
+        "package": "curl,jq",
+        "dnf": "tree,zip"
+      }
+    }
+  },
+  "apk": {
+    "image": "mcr.microsoft.com/devcontainers/base:alpine",
+    "features": {
+      "package": {
+        "package": "curl,jq",
+        "apk": "tree,zip"
+      }
+    }
+  },
+  "pacman": {
+    "image": "archlinux:latest",
+    "features": {
+      "package": {
+        "package": "curl,jq",
+        "pacman": "tree,zip"
+      }
+    }
+  },
+  "zypper": {
+    "image": "opensuse/tumbleweed:latest",
+    "features": {
+      "package": {
+        "package": "curl,jq",
+        "zypper": "tree,zip"
+      }
+    }
+  }
+}
