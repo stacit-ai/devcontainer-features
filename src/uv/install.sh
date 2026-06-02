@@ -21,69 +21,12 @@ set_remote_ownership() {
     chown -R "${_REMOTE_USER}:${_REMOTE_USER}" "$@"
 }
 
-install_apt_deps() {
-    apt-get update -y
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"
-}
-
-install_apk_deps() {
-    apk add --no-cache "$@"
-}
-
-install_dnf_deps() {
-    dnf install -y "$@"
-}
-
-install_yum_deps() {
-    yum install -y "$@"
-}
-
-install_pacman_deps() {
-    pacman -Sy --noconfirm "$@"
-}
-
-detect_package_manager() {
-    if command -v apt-get > /dev/null 2>&1; then
-        echo apt
-    elif command -v apk > /dev/null 2>&1; then
-        echo apk
-    elif command -v dnf > /dev/null 2>&1; then
-        echo dnf
-    elif command -v yum > /dev/null 2>&1; then
-        echo yum
-    elif command -v pacman > /dev/null 2>&1; then
-        echo pacman
-    else
-        echo "ERROR: unsupported package manager for uv feature" >&2
-        exit 1
-    fi
-}
-
-install_deps() {
-    case "$(detect_package_manager)" in
-        apt) install_apt_deps "$@" ;;
-        apk) install_apk_deps "$@" ;;
-        dnf) install_dnf_deps "$@" ;;
-        yum) install_yum_deps "$@" ;;
-        pacman) install_pacman_deps "$@" ;;
-        *)
-            echo "ERROR: unsupported package manager for uv feature" >&2
-            exit 1
-            ;;
-    esac
-}
-
 trim_whitespace() {
     local value="$1"
 
     value="${value#"${value%%[![:space:]]*}"}"
     value="${value%"${value##*[![:space:]]}"}"
     printf '%s' "$value"
-}
-
-install_prerequisites() {
-    echo "==> Installing prerequisites..."
-    install_deps curl ca-certificates sudo
 }
 
 install_uv() {
@@ -140,7 +83,6 @@ install_uv_tools() {
 }
 
 main() {
-    install_prerequisites
     prepare_uv_dirs
     install_uv
     install_uv_tools

@@ -26,3 +26,17 @@
 - The `release.yaml` workflow uses `devcontainers/action` with `publish-features: "true"`.
 - Version is read from `devcontainer-feature.json`; the action skips already-published versions.
 - The action also generates `src/<name>/README.md` documentation (auto-PR'd back to main).
+- Features in this repository still use the full published OCI reference in
+  `dependsOn`, the same as external feature dependencies. Do not use a local id
+  or relative path. For example, to depend on the `package` feature:
+
+  ```json
+  "dependsOn": {
+    "ghcr.io/stacit-ai/devcontainer-features/package:1": {
+      "package": "..."
+    }
+  }
+  ```
+
+  Check the generated `src/<name>/README.md` install snippet for the canonical
+  feature reference; do not edit generated README files manually.
