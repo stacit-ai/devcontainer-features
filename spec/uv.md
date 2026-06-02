@@ -22,6 +22,7 @@ project manager written in Rust.  The feature:
 | RHEL / AlmaLinux (dnf) | ✅ supported |
 | Arch Linux (pacman) | ✅ supported |
 | Alpine (apk) | ✅ supported |
+| openSUSE (zypper) | ✅ supported |
 | `mcr.microsoft.com/devcontainers/base:*` | ✅ supported |
 
 ---
@@ -96,9 +97,9 @@ defaults.
 - **Alpine uses musl libc.** uv distributes musl builds; the official
   installer handles arch/libc detection automatically.
 
-- **Package managers are explicit.** Dependency installation fails for package
-  managers outside the feature's supported image families instead of silently
-  skipping prerequisites.
+- **System dependencies are delegated to `package`.** The uv feature depends on
+  `ghcr.io/stacit-ai/devcontainer-features/package:1` to install `curl`,
+  `ca-certificates`, and `sudo` across supported image families.
 
 ---
 

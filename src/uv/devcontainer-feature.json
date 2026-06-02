@@ -1,6 +1,6 @@
 {
   "id": "uv",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "uv",
   "description": "Installs uv — an extremely fast Python package and project manager. Centralises Python interpreter and package caches under a named Docker volume for faster rebuilds.",
   "documentationURL": "https://github.com/stacit-ai/devcontainer-features/tree/main/src/uv",
@@ -31,6 +31,11 @@
     "UV_PYTHON_INSTALL_DIR": "/opt/uv/python",
     "UV_CACHE_DIR": "/opt/uv/cache",
     "UV_PROJECT_ENVIRONMENT": "/opt/uv/venv"
+  },
+  "dependsOn": {
+    "ghcr.io/stacit-ai/devcontainer-features/package:1": {
+      "package": "curl,ca-certificates,sudo"
+    }
   },
   "installsAfter": []
 }
