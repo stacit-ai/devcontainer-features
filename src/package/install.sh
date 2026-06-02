@@ -87,6 +87,7 @@ install_pacman_packages() {
 }
 
 install_zypper_packages() {
+    zypper --non-interactive refresh
     zypper --non-interactive install --no-recommends "$@"
 }
 
