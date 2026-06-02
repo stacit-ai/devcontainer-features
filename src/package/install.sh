@@ -1,5 +1,5 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 PACKAGE_OPT="${PACKAGE:-}"
 APT_OPT="${APT:-}"

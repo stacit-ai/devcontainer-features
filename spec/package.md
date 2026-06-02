@@ -40,8 +40,8 @@ feature:
 
 ## Implementation Notes / Gotchas
 
-- `install.sh` uses Bash and follows repository conventions (`#!/bin/bash`
-  with `set -euo pipefail`).
+- `install.sh` is POSIX `sh`, not Bash. It must avoid arrays, `local`,
+  `pipefail`, and Bash-only conditionals.
 - Package manager detection order is `apt-get`, `dnf`, `yum`, `apk`, `pacman`,
   then `zypper`.
 - `yum` systems use the `dnf` option because there is no separate `yum` option.
