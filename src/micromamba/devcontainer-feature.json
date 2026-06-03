@@ -1,0 +1,38 @@
+{
+  "id": "micromamba",
+  "version": "1.0.0",
+  "name": "micromamba",
+  "description": "Installs the micromamba executable and optionally initializes it for the remote user's shell.",
+  "documentationURL": "https://github.com/stacit-ai/devcontainer-features/tree/main/src/micromamba",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "proposals": [
+        "latest",
+        "2.7.0-0"
+      ],
+      "description": "micromamba release/build tag to install (e.g. '2.7.0-0'). Use 'latest' for the current release."
+    },
+    "initShell": {
+      "type": "string",
+      "default": "auto",
+      "proposals": [
+        "auto",
+        "none",
+        "bash",
+        "zsh",
+        "fish"
+      ],
+      "description": "Shell to initialize with micromamba shell init. Use 'auto' to detect the remote user's login shell, or 'none' to skip initialization."
+    }
+  },
+  "dependsOn": {
+    "ghcr.io/stacit-ai/devcontainer-features/package:1": {
+      "package": "curl,ca-certificates,sudo"
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}

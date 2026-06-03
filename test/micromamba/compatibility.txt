@@ -1,0 +1,7 @@
+debian:latest
+ubuntu:latest
+archlinux:latest
+almalinux:latest
+opensuse/tumbleweed:latest
+mcr.microsoft.com/devcontainers/base:ubuntu
+mcr.microsoft.com/devcontainers/base:debian
