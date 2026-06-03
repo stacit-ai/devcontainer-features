@@ -87,7 +87,12 @@ batch implementation.
    mcr.microsoft.com/devcontainers/base:debian
    ```
 
-7. **No manual CI filter changes needed** — both `test.yaml` and
+7. **Update the root `README.md` feature catalog** — add the new feature's
+   public user-facing information: feature id, short purpose, key options, and
+   any needed usage example. Keep the edit minimal and local to the new
+   feature; do not rewrite unrelated README sections.
+
+8. **No manual CI filter changes needed** — both `test.yaml` and
    `test-multios.yaml` automatically scan `src/` subdirectories at runtime.
    Creating `src/<name>/` is sufficient for the feature to be detected by CI.
 
@@ -159,6 +164,9 @@ second install.
 - **CI filters are auto-generated** — `test.yaml` and `test-multios.yaml`
   scan `src/` at runtime.  No manual edits to workflow files are needed when
   adding a feature.
+- **Root README is user-facing** — when adding a feature, update only the
+  catalog, usage, or workflow details needed to describe that feature. Avoid
+  broad README rewrites unless the user explicitly asks for one.
 - **Increment version before release** — `release.yaml` skips already-published
   versions.  A new feature must start at `1.0.0`.
 - **Confirm RED before implementing** — if a check passes immediately (before

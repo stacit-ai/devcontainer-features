@@ -1,0 +1,27 @@
+{
+  "with_zsh_default_shell": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "ghcr.io/devcontainers/features/common-utils:2": {
+        "configureZshAsDefaultShell": true
+      },
+      "micromamba": {}
+    }
+  },
+  "without_shell_init": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "micromamba": {
+        "initShell": "none"
+      }
+    }
+  },
+  "with_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "micromamba": {
+        "version": "2.7.0-0"
+      }
+    }
+  }
+}

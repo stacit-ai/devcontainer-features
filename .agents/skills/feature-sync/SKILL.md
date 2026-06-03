@@ -28,19 +28,24 @@ out of sync.  This skill enforces consistency after any change.
 
    | Changed file | What to check / update |
    |---|---|
-   | `src/<name>/install.sh` | Update `spec/<name>.md` if behavior, env vars, or platform support changed; add `check` assertions to `test/<name>/test.sh` for new behavior |
-   | `src/<name>/devcontainer-feature.json` | Update `spec/<name>.md` §Options table if options added/removed/changed; update `test/<name>/test.sh` if new options affect observable behavior |
+   | `src/<name>/install.sh` | Update `spec/<name>.md` if behavior, env vars, or platform support changed; add `check` assertions to `test/<name>/test.sh` for new behavior; update root `README.md` if public behavior changed |
+   | `src/<name>/devcontainer-feature.json` | Update `spec/<name>.md` §Options table if options added/removed/changed; update `test/<name>/test.sh` if new options affect observable behavior; update root `README.md` if options, defaults, mounts, env vars, or usage changed |
    | `src/<name>/NOTE.md` | No cross-part propagation required; NOTE.md is standalone install-time user guidance |
-   | `spec/<name>.md` | Verify `install.sh` actually implements the described behavior; if not, either implement it or update the spec to reflect reality |
+   | `spec/<name>.md` | Verify `install.sh` actually implements the described behavior; if not, either implement it or update the spec to reflect reality; update root `README.md` if public feature information changed |
    | `test/<name>/test.sh` | Verify the tested commands match actual binary names / paths in `install.sh` |
    | `test/<name>/compatibility.txt` | If platforms were added or removed, update `spec/<name>.md` platform table to match |
 
-4. **CI path filters are auto-generated** — both `test.yaml` and
+4. **Keep root README changes minimal** — when a feature interface or
+   user-visible behavior changes, update only the corresponding catalog entry,
+   option list, usage example, or short note in `README.md`. Do not do broad
+   README rewrites unless the user explicitly asks for one.
+
+5. **CI path filters are auto-generated** — both `test.yaml` and
    `test-multios.yaml` scan `src/` at runtime; no manual edits to workflow
    files are needed.  The only per-feature CI artifact to maintain is
    `test/<name>/compatibility.txt` (the base image list).
 
-5. **Check version bump** — if the change alters observable behavior (new
+6. **Check version bump** — if the change alters observable behavior (new
    option, changed default, removed behavior), increment `version` in
    `src/<name>/devcontainer-feature.json` following semver.
 
@@ -61,3 +66,6 @@ out of sync.  This skill enforces consistency after any change.
   scan `src/` at runtime.  Editing those workflow files is never needed when
   adding or removing a feature; only `test/<name>/compatibility.txt` needs
   to be maintained per feature.
+- **Root README is a public overview** — update it for new features, feature
+  interface changes, and user-visible behavior changes. Keep those edits
+  narrowly scoped to the changed public information.
