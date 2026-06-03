@@ -1,0 +1,27 @@
+{
+  "with_zsh_default_shell": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "ghcr.io/devcontainers/features/common-utils:2": {
+        "configureZshAsDefaultShell": true
+      },
+      "miniforge": {}
+    }
+  },
+  "without_shell_init": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "miniforge": {
+        "shell": "none"
+      }
+    }
+  },
+  "with_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "miniforge": {
+        "version": "26.3.2-2"
+      }
+    }
+  }
+}
