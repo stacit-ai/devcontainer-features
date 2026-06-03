@@ -50,8 +50,8 @@ require a glibc-based system and state that Alpine does not work natively.
 ## Implementation Notes / Gotchas
 
 - **Use official release artifacts.** The feature downloads
-  `https://github.com/mamba-org/micromamba-releases/releases/<version>/download/micromamba-<platform>`
-  non-interactively, matching the official install script's release URL shape.
+  `https://github.com/mamba-org/micromamba-releases/releases/download/<version>/micromamba-<platform>`
+  (or `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-<platform>` when `version=latest`) non-interactively, matching the official install script's release URL shape.
 - **Platform names are API-specific.** Linux `x86_64`, `aarch64`, and
   `ppc64le` map to `linux-64`, `linux-aarch64`, and `linux-ppc64le`.
 - **Root prefix belongs to the remote user.** The feature pre-creates
