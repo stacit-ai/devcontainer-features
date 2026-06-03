@@ -29,7 +29,7 @@
   },
   "dependsOn": {
     "ghcr.io/stacit-ai/devcontainer-features/package:1": {
-      "package": "curl,ca-certificates,sudo,bzip2"
+      "package": "curl,ca-certificates,sudo,bzip2,gawk"
     }
   },
   "installsAfter": [

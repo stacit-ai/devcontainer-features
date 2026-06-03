@@ -63,7 +63,7 @@ Alpine is excluded because the Miniforge Linux installers require glibc.
   shell detection happens after common-utils has changed the login shell.
 - **System dependencies are delegated to `package`.** The feature depends on
   `ghcr.io/stacit-ai/devcontainer-features/package:1` to install `curl`,
-  `ca-certificates`, `sudo`, and `bzip2`.
+  `ca-certificates`, `sudo`, `gawk`, and `bzip2`.
 
 ---
 
