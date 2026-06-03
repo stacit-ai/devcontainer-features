@@ -34,7 +34,7 @@
   },
   "dependsOn": {
     "ghcr.io/stacit-ai/devcontainer-features/package:1": {
-      "package": "curl,ca-certificates,sudo"
+      "package": "curl,ca-certificates,sudo,gawk"
     }
   },
   "installsAfter": []

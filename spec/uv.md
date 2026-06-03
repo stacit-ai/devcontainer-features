@@ -99,7 +99,9 @@ defaults.
 
 - **System dependencies are delegated to `package`.** The uv feature depends on
   `ghcr.io/stacit-ai/devcontainer-features/package:1` to install `curl`,
-  `ca-certificates`, and `sudo` across supported image families.
+  `ca-certificates`, `sudo`, and `gawk` across supported image families.
+  The official uv installer requires `awk` for platform detection and checksum
+  verification.
 
 ---
 
