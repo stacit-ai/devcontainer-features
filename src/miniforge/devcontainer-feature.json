@@ -1,0 +1,38 @@
+{
+  "id": "miniforge",
+  "version": "1.0.0",
+  "name": "Miniforge",
+  "description": "Installs Miniforge for the remote user and optionally initializes conda for the user's shell.",
+  "documentationURL": "https://github.com/stacit-ai/devcontainer-features/tree/main/src/miniforge",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "proposals": [
+        "latest",
+        "26.3.2-2"
+      ],
+      "description": "Miniforge GitHub release tag to install (e.g. '26.3.2-2'). Use 'latest' for the current release."
+    },
+    "initShell": {
+      "type": "string",
+      "default": "auto",
+      "proposals": [
+        "auto",
+        "none",
+        "bash",
+        "zsh",
+        "fish"
+      ],
+      "description": "Shell to initialize with conda init. Use 'auto' to detect the remote user's login shell, or 'none' to skip initialization."
+    }
+  },
+  "dependsOn": {
+    "ghcr.io/stacit-ai/devcontainer-features/package:1": {
+      "package": "curl,ca-certificates,sudo,bzip2,gawk"
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}
