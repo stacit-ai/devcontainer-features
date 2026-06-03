@@ -32,7 +32,7 @@ Alpine is excluded because the Miniforge Linux installers require glibc.
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `version` | string | `"latest"` | Miniforge GitHub release tag to install. Use `"latest"` for the current release. |
-| `shell` | string | `"auto"` | Shell to initialize with `conda init`. `"auto"` detects the remote user's login shell; `"none"` skips initialization. |
+| `initShell` | string | `"auto"` | Shell to initialize with `conda init`. `"auto"` detects the remote user's login shell; `"none"` skips initialization. |
 
 ---
 
@@ -56,14 +56,15 @@ Alpine is excluded because the Miniforge Linux installers require glibc.
   download `Miniforge3-<version>-Linux-$(uname -m).sh` from the matching tag.
 - **Repeated installs use update mode.** If the prefix already exists, the
   installer runs with `-u` to keep duplicate feature installs idempotent.
-- **`shell=none` only skips initialization.** `conda` and `mamba` remain
+- **`initShell=none` only skips initialization.** `conda` and `mamba` remain
   available through `/usr/local/bin` symlinks.
-- **`shell=auto` depends on common-utils ordering.** The feature declares
+- **`initShell=auto` depends on common-utils ordering.** The feature declares
   `installsAfter` for `ghcr.io/devcontainers/features/common-utils` so default
   shell detection happens after common-utils has changed the login shell.
 - **System dependencies are delegated to `package`.** The feature depends on
   `ghcr.io/stacit-ai/devcontainer-features/package:1` to install `curl`,
-  `ca-certificates`, `sudo`, `gawk`, and `bzip2`.
+  `ca-certificates`, `sudo`, `bzip2`, and `gawk`. `gawk` is required for the
+  Miniforge installer to run correctly on openSUSE.
 
 ---
 
@@ -79,8 +80,8 @@ Alpine is excluded because the Miniforge Linux installers require glibc.
 1. `conda` is on `PATH` after install.
 2. `mamba` is on `PATH` after install.
 3. Miniforge is installed under the remote user's `~/.miniforge3`.
-4. Default `shell=auto` initializes the detected shell.
+4. Default `initShell=auto` initializes the detected shell.
 5. Re-install is idempotent.
-6. `shell=none` skips shell initialization while keeping commands available.
-7. `shell=auto` detects a zsh login shell after common-utils.
+6. `initShell=none` skips shell initialization while keeping commands available.
+7. `initShell=auto` detects a zsh login shell after common-utils.
 8. Specific `version` option installs from that Miniforge release tag.

@@ -14,7 +14,7 @@
       ],
       "description": "Miniforge GitHub release tag to install (e.g. '26.3.2-2'). Use 'latest' for the current release."
     },
-    "shell": {
+    "initShell": {
       "type": "string",
       "default": "auto",
       "proposals": [

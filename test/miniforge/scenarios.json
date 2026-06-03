@@ -12,7 +12,7 @@
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
       "miniforge": {
-        "shell": "none"
+        "initShell": "none"
       }
     }
   },

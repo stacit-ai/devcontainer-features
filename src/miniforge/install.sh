@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MINIFORGE_VERSION="${VERSION:-"latest"}"
-SHELL_OPTION="${SHELL:-"auto"}"
+INIT_SHELL="${INITSHELL:-"auto"}"
 
 MINIFORGE_PREFIX="${_REMOTE_USER_HOME}/.miniforge3"
 INSTALLER_PATH="/tmp/miniforge-installer.sh"
@@ -81,10 +81,10 @@ detect_remote_shell() {
 }
 
 resolve_shell_to_init() {
-    if [ "${SHELL_OPTION}" = "auto" ]; then
+    if [ "${INIT_SHELL}" = "auto" ]; then
         detect_remote_shell
     else
-        printf '%s\n' "${SHELL_OPTION}"
+        printf '%s\n' "${INIT_SHELL}"
     fi
 }
 
@@ -102,7 +102,7 @@ validate_shell() {
 initialize_shell() {
     local shell_name
 
-    if [ "${SHELL_OPTION}" = "none" ]; then
+    if [ "${INIT_SHELL}" = "none" ]; then
         echo "Skipping conda shell initialization."
         return
     fi
