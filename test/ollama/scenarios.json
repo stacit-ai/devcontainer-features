@@ -1,0 +1,10 @@
+{
+  "with_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "ollama": {
+        "version": "0.5.7"
+      }
+    }
+  }
+}
