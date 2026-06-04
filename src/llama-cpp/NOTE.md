@@ -1,5 +1,11 @@
 # llama.cpp feature notes
 
+## Compatibility
+
+Use this feature only with Ubuntu container images. The feature installs
+upstream llama.cpp Ubuntu binaries, so Debian, Fedora, AlmaLinux, Arch,
+openSUSE, Alpine, and other non-Ubuntu images are not supported.
+
 ## Backend choices
 
 Set the `backend` option to one of:

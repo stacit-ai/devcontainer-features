@@ -19,13 +19,13 @@ runtime with `llama-server`.
 
 | Platform | Status |
 |---|---|
-| Linux x86_64, CPU backend | supported |
-| Linux aarch64, CPU backend | supported |
-| Linux x86_64 / aarch64, Vulkan backend | supported when upstream asset exists |
-| Linux x86_64, ROCm backend | supported when upstream asset exists |
-| Linux x86_64, OpenVINO backend | supported when upstream asset exists |
-| Linux x86_64, CUDA backend | proposal only; supported when upstream Linux CUDA asset exists |
-| Alpine (apk / musl) | not supported |
+| Ubuntu x86_64, CPU backend | supported |
+| Ubuntu aarch64, CPU backend | supported |
+| Ubuntu x86_64 / aarch64, Vulkan backend | supported when upstream asset exists |
+| Ubuntu x86_64, ROCm backend | supported when upstream asset exists |
+| Ubuntu x86_64, OpenVINO backend | supported when upstream asset exists |
+| Ubuntu x86_64, CUDA backend | proposal only; supported when upstream Linux CUDA asset exists |
+| Non-Ubuntu Linux distributions | not supported |
 
 The feature downloads upstream Ubuntu release assets. GPU backends require the
 matching runtime libraries and drivers to be provided by the base image or host
@@ -48,6 +48,8 @@ container runtime.
 - Asset names include the release tag and backend-specific suffixes. The
   installer searches the resolved release's assets and fails clearly when the
   requested backend/architecture has no asset.
+- The installer requires an Ubuntu container image because upstream llama.cpp
+  Linux release binaries are Ubuntu builds.
 - Only `llama-server` and `llama-cli` are installed in v1.
 - The feature does not build from source, install GPU drivers, install CUDA or
   ROCm runtime packages, download models, or create a service.
