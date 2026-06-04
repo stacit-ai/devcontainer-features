@@ -1,0 +1,34 @@
+{
+  "id": "ollama",
+  "version": "1.0.0",
+  "name": "Ollama",
+  "description": "Installs Ollama for local LLM serving and caches downloaded models under a persistent Docker volume.",
+  "documentationURL": "https://github.com/stacit-ai/devcontainer-features/tree/main/src/ollama",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "proposals": [
+        "latest",
+        "0.5.7"
+      ],
+      "description": "Ollama version to install. Use 'latest' for the current download, or a version such as '0.5.7' / 'v0.5.7' for a pinned release."
+    }
+  },
+  "mounts": [
+    {
+      "source": "ollama-${devcontainerId}",
+      "target": "/opt/ollama/models",
+      "type": "volume"
+    }
+  ],
+  "containerEnv": {
+    "OLLAMA_MODELS": "/opt/ollama/models"
+  },
+  "dependsOn": {
+    "ghcr.io/stacit-ai/devcontainer-features/package:1": {
+      "package": "bash,curl,ca-certificates,sudo,zstd,tar,gzip"
+    }
+  },
+  "installsAfter": []
+}
