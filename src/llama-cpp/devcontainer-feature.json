@@ -22,7 +22,8 @@
   },
   "dependsOn": {
     "ghcr.io/stacit-ai/devcontainer-features/package:1": {
-      "package": "bash,curl,ca-certificates,sudo,tar,gzip,grep,sed,findutils"
+      "package": "bash,curl,ca-certificates,sudo,tar,gzip,grep,sed,findutils",
+      "apt": "libgomp1"
     }
   },
   "installsAfter": []
