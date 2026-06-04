@@ -17,10 +17,6 @@
     "backend": {
       "type": "string",
       "default": "cpu",
-      "proposals": [
-        "cpu",
-        "cuda"
-      ],
       "description": "Upstream prebuilt backend to install. GPU backends require matching runtime libraries and drivers from the base image or host."
     }
   },

@@ -38,7 +38,7 @@ container runtime.
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `version` | string | `"latest"` | llama.cpp release tag to install. Use `"latest"` for GitHub's latest release, or a tag such as `"b9360"` for a pinned release. |
-| `backend` | string | `"cpu"` | Upstream prebuilt backend to install. Proposals are `"cpu"`, `"vulkan"`, `"cuda"`, `"rocm"`, and `"openvino"`. |
+| `backend` | string | `"cpu"` | Upstream prebuilt backend to install. |
 
 ---
 
