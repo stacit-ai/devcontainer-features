@@ -1,0 +1,18 @@
+{
+  "with_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "llama-cpp": {
+        "version": "b9360"
+      }
+    }
+  },
+  "with_vulkan": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "llama-cpp": {
+        "backend": "vulkan"
+      }
+    }
+  }
+}

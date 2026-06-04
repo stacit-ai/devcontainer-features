@@ -1,0 +1,2 @@
+ubuntu:latest
+mcr.microsoft.com/devcontainers/base:ubuntu

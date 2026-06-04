@@ -1,0 +1,30 @@
+{
+  "id": "llama-cpp",
+  "version": "1.0.0",
+  "name": "llama.cpp",
+  "description": "Installs llama.cpp prebuilt binaries, including llama-server, for local LLM serving.",
+  "documentationURL": "https://github.com/stacit-ai/devcontainer-features/tree/main/src/llama-cpp",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "proposals": [
+        "latest",
+        "b9360"
+      ],
+      "description": "llama.cpp GitHub release tag to install. Use 'latest' for the current release, or a tag such as 'b9360'."
+    },
+    "backend": {
+      "type": "string",
+      "default": "cpu",
+      "description": "Upstream prebuilt backend to install. GPU backends require matching runtime libraries and drivers from the base image or host."
+    }
+  },
+  "dependsOn": {
+    "ghcr.io/stacit-ai/devcontainer-features/package:1": {
+      "package": "bash,curl,ca-certificates,sudo,tar,gzip,grep,sed,findutils",
+      "apt": "libgomp1"
+    }
+  },
+  "installsAfter": []
+}
