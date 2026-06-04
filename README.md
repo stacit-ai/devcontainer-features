@@ -8,10 +8,14 @@ across the Linux images commonly used for development containers.
 
 | Feature | What it does | Main options |
 |---|---|---|
-| [`package`](./spec/package.md) | Installs system packages across apt, dnf/yum, apk, pacman, and zypper images. | `package`, `apt`, `dnf`, `apk`, `pacman`, `zypper` |
-| [`uv`](./spec/uv.md) | Installs `uv` and centralizes Python interpreter, project environment, and cache directories under a Docker volume. | `version`, `toolsToInstall` |
-| [`miniforge`](./spec/miniforge.md) | Installs Miniforge for the remote user, including `conda` and `mamba`, with optional shell initialization. | `version`, `initShell` |
-| [`micromamba`](./spec/micromamba.md) | Installs the standalone `micromamba` executable with optional shell initialization. | `version`, `initShell` |
+| [`package`](./src/package/README.md) | Installs system packages across apt, dnf/yum, apk, pacman, and zypper images. | `package`, `apt`, `dnf`, `apk`, `pacman`, `zypper` |
+| [`uv`](./src/uv/README.md) | Installs `uv` and centralizes Python interpreter, project environment, and cache directories under a Docker volume. | `version`, `toolsToInstall` |
+| [`huggingface`](./src/huggingface/README.md) | Installs the Hugging Face Hub CLI via `uv` and caches Hugging Face data under a Docker volume. | none |
+| [`hf-mount`](./src/hf-mount/README.md) | Installs Hugging Face `hf-mount` and its NFS backend for mounting Hub Buckets and repos as local filesystems. | `version` |
+| [`ollama`](./src/ollama/README.md) | Installs Ollama for local LLM serving and caches downloaded models under a Docker volume. | `version` |
+| [`llama-cpp`](./src/llama-cpp/README.md) | Installs llama.cpp prebuilt binaries, including `llama-server`, for local LLM serving. | `version`, `backend` |
+| [`miniforge`](./src/miniforge/README.md) | Installs Miniforge for the remote user, including `conda` and `mamba`, with optional shell initialization. | `version`, `initShell` |
+| [`micromamba`](./src/micromamba/README.md) | Installs the standalone `micromamba` executable with optional shell initialization. | `version`, `initShell` |
 
 ## Quick Start
 
