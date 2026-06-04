@@ -1,0 +1,10 @@
+{
+  "with_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "hf-mount": {
+        "version": "0.6.5"
+      }
+    }
+  }
+}

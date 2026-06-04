@@ -1,0 +1,24 @@
+{
+  "id": "hf-mount",
+  "version": "1.0.0",
+  "name": "hf-mount",
+  "description": "Installs Hugging Face hf-mount and its NFS backend for mounting Hub Buckets and repos as local filesystems.",
+  "documentationURL": "https://github.com/stacit-ai/devcontainer-features/tree/main/src/hf-mount",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "proposals": [
+        "latest",
+        "0.6.5"
+      ],
+      "description": "Version of hf-mount to install. Use 'latest' for GitHub's latest release, or a version such as '0.6.5'."
+    }
+  },
+  "dependsOn": {
+    "ghcr.io/stacit-ai/devcontainer-features/package:1": {
+      "package": "bash,curl,ca-certificates,sudo"
+    }
+  },
+  "installsAfter": []
+}
