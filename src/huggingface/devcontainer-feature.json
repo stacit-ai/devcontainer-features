@@ -1,0 +1,24 @@
+{
+  "id": "huggingface",
+  "version": "1.0.0",
+  "name": "Hugging Face",
+  "description": "Installs the Hugging Face Hub CLI via uv and caches Hugging Face data under a persistent Docker volume.",
+  "documentationURL": "https://github.com/stacit-ai/devcontainer-features/tree/main/src/huggingface",
+  "options": {},
+  "mounts": [
+    {
+      "source": "huggingface-${devcontainerId}",
+      "target": "/opt/huggingface",
+      "type": "volume"
+    }
+  ],
+  "containerEnv": {
+    "HF_HOME": "/opt/huggingface"
+  },
+  "dependsOn": {
+    "ghcr.io/stacit-ai/devcontainer-features/uv:1": {
+      "toolsToInstall": "huggingface_hub"
+    }
+  },
+  "installsAfter": []
+}
