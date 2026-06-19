@@ -1,0 +1,36 @@
+{
+  "id": "codex",
+  "version": "1.0.0",
+  "name": "Codex",
+  "description": "Installs the Codex CLI and synchronizes file-based ChatGPT credentials through a shared Docker volume.",
+  "documentationURL": "https://github.com/stacit-ai/devcontainer-features/tree/main/src/codex",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "proposals": [
+        "latest",
+        "0.141.0"
+      ],
+      "description": "Codex release to install. Use 'latest' or a release such as '0.141.0'."
+    }
+  },
+  "mounts": [
+    {
+      "source": "codex-auth",
+      "target": "/var/lib/codex-auth",
+      "type": "volume"
+    }
+  ],
+  "postStartCommand": [
+    "sudo",
+    "/usr/local/lib/codex-auth-sync",
+    "start"
+  ],
+  "dependsOn": {
+    "ghcr.io/stacit-ai/devcontainer-features/package:1": {
+      "package": "curl,ca-certificates,sudo,jq,util-linux,tar,gzip,gawk,findutils"
+    }
+  },
+  "installsAfter": []
+}
