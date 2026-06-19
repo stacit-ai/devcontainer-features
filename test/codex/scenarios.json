@@ -1,0 +1,10 @@
+{
+  "with_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "codex": {
+        "version": "0.140.0"
+      }
+    }
+  }
+}

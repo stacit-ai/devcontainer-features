@@ -16,6 +16,11 @@ across the Linux images commonly used for development containers.
 | [`llama-cpp`](./src/llama-cpp/README.md) | Installs llama.cpp prebuilt binaries, including `llama-server`, for local LLM serving. | `version`, `backend` |
 | [`miniforge`](./src/miniforge/README.md) | Installs Miniforge for the remote user, including `conda` and `mamba`, with optional shell initialization. | `version`, `initShell` |
 | [`micromamba`](./src/micromamba/README.md) | Installs the standalone `micromamba` executable with optional shell initialization. | `version`, `initShell` |
+| [`codex`](./src/codex/README.md) | Installs Codex CLI and synchronizes file-based ChatGPT credentials through a shared Docker volume. | `version` |
+
+The `codex` feature uses the fixed `codex-auth` volume so trusted dev
+containers on the same Docker host can share ChatGPT login state. API-key
+credentials are not copied into or restored from that volume.
 
 ## Quick Start
 
